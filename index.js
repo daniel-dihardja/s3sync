@@ -2,7 +2,7 @@ const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const chokidar = require('chokidar');
 
 const config = {
-	directory: '/Users/danieldihardja/s3sync',
+	directory: '/dir/to/s3sync',
 	bucket: '',
 	region: ''
 }
