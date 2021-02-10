@@ -14,20 +14,20 @@ function s3sync(config) {
 	const watcher = chokidar.watch(config.directory, { persistent: true });
 
 	watcher
-		.on('add', path => add('added ' + path))
-		.on('change', path => change('changed' + path))
-		.on('unlink', path => remove('removed' + path))
+		.on('add', path => add(path))
+		.on('change', path => change(path))
+		.on('unlink', path => remove(path))
 
 	function add(path) {
-		console.log(path);
+		console.log('add ' + path);
 	}
 
 	function change(path) {
-		console.log(path);
+		console.log('change ' + path);
 	}
 
 	function remove(path) {
-		console.log(path)
+		console.log('remove ' + path)
 	}
 }
 
