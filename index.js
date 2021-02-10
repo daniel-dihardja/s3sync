@@ -2,27 +2,36 @@ const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const chokidar = require('chokidar');
 
 const config = {
-	directory: '/dir/to/s3sync',
+	directory: '/Users/danieldihardja/s3sync',
 	bucket: '',
-	region: ''
+	region: '',
+	ignore: ['.DS_Store']
 }
 
-// Initialize watcher.
-const watcher = chokidar.watch(config.directory, { persistent: true });
+function s3sync(config) {
 
-watcher
-	.on('add', path => add('added ' + path))
-	.on('change', path => change('changed' + path))
-	.on('unlink', path => remove('removed' + path))
+	// Initialize watcher.
+	const watcher = chokidar.watch(config.directory, { persistent: true });
 
-function add(path) {
-	console.log(path);
+	watcher
+		.on('add', path => add('added ' + path))
+		.on('change', path => change('changed' + path))
+		.on('unlink', path => remove('removed' + path))
+
+	function add(path) {
+		console.log(path);
+	}
+
+	function change(path) {
+		console.log(path);
+	}
+
+	function remove(path) {
+		console.log(path)
+	}
 }
 
-function change(path) {
-	console.log(path);
-}
+s3sync(config);
 
-function remove(path) {
-	console.log(path)
-}
+
+
