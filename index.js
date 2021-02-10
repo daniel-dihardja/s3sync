@@ -1,6 +1,6 @@
 // Import required AWS SDK clients and commands for Node.js
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const chokidar = require('chokidar');
+const fg = require('fast-glob');
 
-console.log(chokidar);
 
