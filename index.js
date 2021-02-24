@@ -3,11 +3,6 @@ const fs = require('fs');
 const AWS = require('aws-sdk');
 const chokidar = require('chokidar');
 
-const diffBucketStates = config => {
-	return new Promise((resolve, reject) => {
-		resolve();
-	});
-}
 
 const getBucketUpdates = config => {
 	return new Promise((resolve, reject) => {
@@ -15,7 +10,7 @@ const getBucketUpdates = config => {
 
 		const s3 = new AWS.S3();
 		const params = {
-			Bucket: "s3sync-v1",
+			Bucket: config.bucket,
 		}
 
 		s3.listObjects(params, function(err, data) {
@@ -85,7 +80,7 @@ const watchDirectory = config => {
 }
 
 function run(config) {
-	getBucketUpdates()
+	getBucketUpdates(config)
 		.then(data => {
 			console.log(data);
 			watchDirectory(config);
