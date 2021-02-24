@@ -20,8 +20,6 @@ const checkForDownloads = config => {
 		});
 	});
 }
-// listObjects(config);
-
 
 const ignore = path => {
 	return config.ignore.filter(e => path.indexOf(e) > -1)[0];
