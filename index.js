@@ -3,22 +3,24 @@ const fs = require('fs');
 const AWS = require('aws-sdk');
 const chokidar = require('chokidar');
 
-/*
-function listObjects(config) {
-	const s3 = new AWS.S3();
-	const params = {
-		Bucket: "s3sync-v1",
-	}
-	s3.listObjects(params, function(err, data) {
-		if (err) {
-			console.log(err);
-		} else {
-			console.log(data);
+
+const listObjects = config => {
+	return new Promise((resolve, reject) => {
+		const s3 = new AWS.S3();
+		const params = {
+			Bucket: "s3sync-v1",
 		}
+		s3.listObjects(params, function(err, data) {
+			if (err) {
+				reject(err)
+			} else {
+				resolve(data);
+			}
+		});
 	});
 }
-listObjects(config);
-*/
+// listObjects(config);
+
 
 const ignore = path => {
 	return config.ignore.filter(e => path.indexOf(e) > -1)[0];
@@ -68,18 +70,21 @@ const change = path => {
 
 function run(config) {
 
-	// Initialize watcher.
-	const watcher = chokidar.watch(config.directory, { persistent: true });
+	listObjects()
+		.then(data => {
 
-	watcher
-		.on('add', path => add(path))
-		.on('change', path => change(path))
-		.on('unlink', path => remove(path))
+			console.log(data);
+
+			// Initialize watcher.
+			const watcher = chokidar.watch(config.directory, { persistent: true });
+			watcher
+				.on('add', path => add(path))
+				.on('change', path => change(path))
+				.on('unlink', path => remove(path))
+		});
 }
 
-
 // entry
-
 run(config);
 
 
