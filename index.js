@@ -3,7 +3,7 @@ const fs = require('fs');
 const AWS = require('aws-sdk');
 const chokidar = require('chokidar');
 
-/*
+
 function listObjects(config) {
 	const s3 = new AWS.S3();
 	const params = {
@@ -18,7 +18,16 @@ function listObjects(config) {
 	});
 }
 listObjects(config);
-*/
+
+
+const ignore = path => {
+	for ( let i=0; i<config.ignore.length; i++ ) {
+		if (path.indexOf(config.ignore[i]) > -1) {
+			return true;
+		}
+	}
+	return false;
+};
 
 function s3sync(config) {
 
@@ -31,10 +40,9 @@ function s3sync(config) {
 		.on('unlink', path => remove(path))
 
 	function add(path) {
-		for ( let i=0; i<config.ignore.length; i++ ) {
-			if (path.indexOf(config.ignore[i]) > -1) {
-				return false;
-			}
+
+		if (ignore(path)) {
+			return false;
 		}
 
 		const parts = path.split('/');
@@ -66,10 +74,16 @@ function s3sync(config) {
 
 	function change(path) {
 		console.log('change ' + path);
+		if (ignore(path)) {
+			return false;
+		}
 	}
 
 	function remove(path) {
 		console.log('remove ' + path)
+		if (ignore(path)) {
+			return false;
+		}
 	}
 }
 
