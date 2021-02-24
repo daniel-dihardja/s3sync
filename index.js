@@ -4,7 +4,7 @@ const AWS = require('aws-sdk');
 const chokidar = require('chokidar');
 
 
-const listObjects = config => {
+const checkForDownloads = config => {
 	return new Promise((resolve, reject) => {
 		const s3 = new AWS.S3();
 		const params = {
@@ -70,7 +70,7 @@ const change = path => {
 
 function run(config) {
 
-	listObjects()
+	checkForDownloads()
 		.then(data => {
 
 			console.log(data);
