@@ -1,12 +1,7 @@
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const config = require('./config');
+const fs = require('fs');
+const AWS = require('aws-sdk');
 const chokidar = require('chokidar');
-
-const config = {
-	directory: '/Users/danieldihardja/s3sync',
-	bucket: '',
-	region: '',
-	ignore: ['.DS_Store']
-}
 
 function s3sync(config) {
 
@@ -19,7 +14,25 @@ function s3sync(config) {
 		.on('unlink', path => remove(path))
 
 	function add(path) {
-		console.log('add ' + path);
+		if (path.indexOf('.DS_Store') > 0) {
+			return false;
+		}
+		const parts = path.split('/');
+		const fileName = parts[parts.length -1];
+		const fileContent = fs.readFileSync(path);
+		const params = {
+			Bucket: config.bucket,
+			Key: fileName, // File name you want to save as in S3
+			Body: fileContent
+		};
+
+		const s3 = new AWS.S3();
+		s3.upload(params, (err, data) => {
+			if (err) {
+				throw err;
+			}
+			console.log(`File uploaded successfully. ${data.Location}`);
+		});
 	}
 
 	function change(path) {
