@@ -14,6 +14,7 @@ const checkForDownloads = config => {
 			if (err) {
 				reject(err)
 			} else {
+				fs.writeFile('bucket', JSON.stringify(data), () => {});
 				resolve(data);
 			}
 		});
