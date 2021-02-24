@@ -3,7 +3,7 @@ const fs = require('fs');
 const AWS = require('aws-sdk');
 const chokidar = require('chokidar');
 
-
+/*
 function listObjects(config) {
 	const s3 = new AWS.S3();
 	const params = {
@@ -18,7 +18,7 @@ function listObjects(config) {
 	});
 }
 listObjects(config);
-
+*/
 
 function s3sync(config) {
 
@@ -31,9 +31,12 @@ function s3sync(config) {
 		.on('unlink', path => remove(path))
 
 	function add(path) {
-		if (path.indexOf('.DS_Store') > 0) {
-			return false;
+		for ( let i=0; i<config.ignore.length; i++ ) {
+			if (path.indexOf(config.ignore[i]) > -1) {
+				return false;
+			}
 		}
+
 		const parts = path.split('/');
 		const fileName = parts[parts.length -1];
 		const fileContent = fs.readFileSync(path);
@@ -43,7 +46,16 @@ function s3sync(config) {
 			Body: fileContent
 		};
 
-		const s3 = new AWS.S3();
+		const {
+			accessKeyId,
+			secretAccessKey
+		} = config;
+
+		const s3 = new AWS.S3({
+			accessKeyId,
+			secretAccessKey
+		});
+
 		s3.upload(params, (err, data) => {
 			if (err) {
 				throw err;
@@ -60,7 +72,8 @@ function s3sync(config) {
 		console.log('remove ' + path)
 	}
 }
-// s3sync(config);
+
+s3sync(config);
 
 
 
