@@ -4,7 +4,7 @@ const AWS = require('aws-sdk');
 const chokidar = require('chokidar');
 
 
-const checkForDownloads = config => {
+const downloadBucketState = config => {
 	return new Promise((resolve, reject) => {
 		const s3 = new AWS.S3();
 		const params = {
@@ -14,7 +14,7 @@ const checkForDownloads = config => {
 			if (err) {
 				reject(err)
 			} else {
-				fs.writeFile('bucket', JSON.stringify(data), () => {});
+				fs.writeFile('bucket-state', JSON.stringify(data), () => {});
 				resolve(data);
 			}
 		});
@@ -69,7 +69,7 @@ const change = path => {
 
 function run(config) {
 
-	checkForDownloads()
+	downloadBucketState()
 		.then(data => {
 
 			console.log(data);
