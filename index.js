@@ -54,14 +54,9 @@ function s3sync(config) {
 			Body: fileContent
 		};
 
-		const {
-			accessKeyId,
-			secretAccessKey
-		} = config;
-
 		const s3 = new AWS.S3({
-			accessKeyId,
-			secretAccessKey
+			accessKeyId: config.accessKeyId,
+			secretAccessKey: config.secretAccessKey
 		});
 
 		s3.upload(params, (err, data) => {
