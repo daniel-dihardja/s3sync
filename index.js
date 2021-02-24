@@ -67,19 +67,20 @@ const change = path => {
 	}
 }
 
-function run(config) {
+const watchDirectory = config => {
+	// Initialize watcher.
+	const watcher = chokidar.watch(config.directory, { persistent: true });
+	watcher
+		.on('add', path => add(path))
+		.on('change', path => change(path))
+		.on('unlink', path => remove(path))
+}
 
+function run(config) {
 	downloadBucketState()
 		.then(data => {
-
 			console.log(data);
-
-			// Initialize watcher.
-			const watcher = chokidar.watch(config.directory, { persistent: true });
-			watcher
-				.on('add', path => add(path))
-				.on('change', path => change(path))
-				.on('unlink', path => remove(path))
+			watchDirectory(config);
 		});
 }
 
