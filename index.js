@@ -3,6 +3,23 @@ const fs = require('fs');
 const AWS = require('aws-sdk');
 const chokidar = require('chokidar');
 
+
+function listObjects(config) {
+	const s3 = new AWS.S3();
+	const params = {
+		Bucket: "s3sync-v1",
+	}
+	s3.listObjects(params, function(err, data) {
+		if (err) {
+			console.log(err);
+		} else {
+			console.log(data);
+		}
+	});
+}
+listObjects(config);
+
+
 function s3sync(config) {
 
 	// Initialize watcher.
@@ -43,8 +60,7 @@ function s3sync(config) {
 		console.log('remove ' + path)
 	}
 }
-
-s3sync(config);
+// s3sync(config);
 
 
 
