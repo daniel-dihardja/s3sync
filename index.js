@@ -17,16 +17,10 @@ function listObjects(config) {
 		}
 	});
 }
-listObjects(config);
-
+// listObjects(config);
 
 const ignore = path => {
-	for ( let i=0; i<config.ignore.length; i++ ) {
-		if (path.indexOf(config.ignore[i]) > -1) {
-			return true;
-		}
-	}
-	return false;
+	return config.ignore.filter(e => path.indexOf(e) > -1)[0];
 };
 
 function s3sync(config) {
