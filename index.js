@@ -1,27 +1,64 @@
 const config = require('./config');
 const fs = require('fs');
-const AWS = require('aws-sdk');
+const path = require('path');
+const {
+	S3Client,
+	ListObjectsCommand,
+	PutObjectCommand,
+	GetObjectCommand
+} = require('@aws-sdk/client-s3');
+
 const chokidar = require('chokidar');
 
+const s3 = new S3Client({
+	region: config.region,
+	accessKeyId: config.accessKeyId,
+	secretAccessKey: config.secretAccessKey
+})
 
-const getBucketUpdates = config => {
-	return new Promise((resolve, reject) => {
-		const localState = {};
-
-		const s3 = new AWS.S3();
+const downloadUpdate = async (config, diff) => {
+	for (let i=0; i<diff.length; i++) {
 		const params = {
 			Bucket: config.bucket,
+			Key: diff[i].Key
 		}
+		const f = await s3.send(new GetObjectCommand(params));
+		const file = path.join(config.directory, diff[i].Key);
+		fs.writeFileSync(file, f.Body);
+	}
+}
 
-		s3.listObjects(params, function(err, data) {
-			if (err) {
-				reject(err)
-			} else {
-				fs.writeFile('bucket-state', JSON.stringify(data), () => {});
-				resolve(data);
-			}
-		});
+const diffStates = (localState, serverState) => {
+	const local = localState ? localState.Contents : [];
+	const server = serverState ? serverState.Contents : [];
+
+	const diff = server.filter((e, i) => {
+		if (! local[i]) {
+			return true;
+		}
 	});
+	return diff;
+}
+
+const getLocalBucketState = () => {
+	try {
+		const data = fs.readFileSync('./bucket-state', 'utf-8');
+		return JSON.parse(data);
+	} catch(err) {
+		return null;
+	}
+}
+
+const getRemoteBucketState = async config => {
+	const params = {
+		Bucket: config.bucket
+	}
+	try {
+		const data = await s3.send(new ListObjectsCommand(params));
+		return data;
+	} catch(err) {
+		return null;
+	}
 }
 
 const ignore = path => {
@@ -73,19 +110,32 @@ const change = path => {
 const watchDirectory = config => {
 	// Initialize watcher.
 	const watcher = chokidar.watch(config.directory, { persistent: true });
+	/*
 	watcher
 		.on('add', path => add(path))
 		.on('change', path => change(path))
 		.on('unlink', path => remove(path))
+	*/
 }
 
-function run(config) {
+
+async function run (config) {
+	const localBucketState = getLocalBucketState();
+	const serverBucketState = await getRemoteBucketState(config);
+	const diff = diffStates(localBucketState, serverBucketState);
+	await downloadUpdate(config, diff);
+	fs.writeFileSync('bucket-state', JSON.stringify(serverBucketState));
+
+	// console.log(d);
+	/*
 	getBucketUpdates(config)
 		.then(data => {
 			console.log(data);
 			watchDirectory(config);
 		});
+	*/
 }
+
 
 // entry
 run(config);
